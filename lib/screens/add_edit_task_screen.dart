@@ -28,6 +28,9 @@ class _AddEditTaskScreenState
 
   bool get isEditing => widget.task != null;
 
+  static const Color primaryBlue = Color(0xFF1727A0);
+  static const Color backgroundColor = Color(0xFFF5F6FA);
+
   @override
   void initState() {
     super.initState();
@@ -119,24 +122,76 @@ class _AddEditTaskScreenState
     Navigator.pop(context);
   }
 
+  String _dateText() {
+    if (_dueDate == null) {
+      return 'Select due date';
+    }
+
+    return '${_dueDate!.month}/${_dueDate!.day}/${_dueDate!.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
+
       appBar: AppBar(
+        backgroundColor: primaryBlue,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+
         title: Text(
-          isEditing ? 'Edit Task' : 'Add Task',
+          isEditing ? 'Edit Task' : 'New Task',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
+
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            20,
+            16,
+            30,
+          ),
           children: [
+            const Text(
+              'Task Information',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 5),
+
+            Text(
+              isEditing
+                  ? 'Update the details of your task.'
+                  : 'Create a new task and stay organized.',
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 13,
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
+            // TITLE
+            _sectionLabel('Task Title'),
+
+            const SizedBox(height: 8),
+
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Task Title',
-                border: OutlineInputBorder(),
+              textInputAction: TextInputAction.next,
+              decoration: _inputDecoration(
+                hint: 'Enter task title',
+                icon: Icons.title,
               ),
               validator: (value) {
                 if (value == null ||
@@ -148,33 +203,34 @@ class _AddEditTaskScreenState
               },
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+
+            // DESCRIPTION
+            _sectionLabel('Description'),
+
+            const SizedBox(height: 8),
 
             TextFormField(
               controller: _descriptionController,
               maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
+              decoration: _inputDecoration(
+                hint: 'Add a description...',
+                icon: Icons.notes_outlined,
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
 
-            const Text(
-              'Priority',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
+            // PRIORITY
+            _sectionLabel('Priority'),
 
             const SizedBox(height: 8),
 
             DropdownButtonFormField<TaskPriority>(
-            initialValue: _priority,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              initialValue: _priority,
+              decoration: _inputDecoration(
+                hint: 'Select priority',
+                icon: Icons.flag_outlined,
               ),
               items: const [
                 DropdownMenuItem(
@@ -199,40 +255,176 @@ class _AddEditTaskScreenState
               },
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
 
-            OutlinedButton.icon(
-              onPressed: _selectDate,
-              icon: const Icon(Icons.calendar_today),
-              label: Text(
-                _dueDate == null
-                    ? 'Select Due Date'
-                    : 'Due Date: ${_dueDate!.month}/${_dueDate!.day}/${_dueDate!.year}',
-              ),
+            // DATE AND TIME
+            _sectionLabel('Schedule'),
+
+            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _scheduleButton(
+                    icon: Icons.calendar_today_outlined,
+                    title: 'Due Date',
+                    value: _dateText(),
+                    onTap: _selectDate,
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                Expanded(
+                  child: _scheduleButton(
+                    icon: Icons.access_time,
+                    title: 'Due Time',
+                    value: _dueTime == null
+                        ? 'Select time'
+                        : _dueTime!.format(context),
+                    onTap: _selectTime,
+                  ),
+                ),
+              ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 32),
 
-            OutlinedButton.icon(
-              onPressed: _selectTime,
-              icon: const Icon(Icons.access_time),
-              label: Text(
-                _dueTime == null
-                    ? 'Select Due Time'
-                    : 'Due Time: ${_dueTime!.format(context)}',
-              ),
-            ),
-
-            const SizedBox(height: 28),
-
+            // SAVE BUTTON
             SizedBox(
+              height: 52,
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _saveTask,
-                icon: const Icon(Icons.save),
-                label: Text(
-                  isEditing ? 'Update Task' : 'Save Task',
+
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryBlue,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
+
+                icon: Icon(
+                  isEditing
+                      ? Icons.save_outlined
+                      : Icons.add_task,
+                ),
+
+                label: Text(
+                  isEditing
+                      ? 'Update Task'
+                      : 'Create Task',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    required String hint,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: Icon(
+        icon,
+        color: primaryBlue,
+        size: 20,
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 14,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: Colors.grey.shade200,
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: Colors.grey.shade200,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(
+          color: primaryBlue,
+          width: 1.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _scheduleButton({
+    required IconData icon,
+    required String title,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 17,
+                  color: primaryBlue,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 7),
+
+            Text(
+              value,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
