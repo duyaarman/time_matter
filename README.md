@@ -39,6 +39,8 @@ lib/
 └── widgets/
     ├── task_card.dart
     └── home_bottom_nav.dart
+
+```
 Main Screens
 Home Screen
 
