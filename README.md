@@ -2,6 +2,8 @@
 
 A task-management mobile application built with Flutter.
 
+[![Made with AI](https://img.shields.io/badge/Made_with-AI_assistance-blue)](AI-USAGE.md)
+
 ## Features
 
 - Create new tasks
