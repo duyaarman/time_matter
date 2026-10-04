@@ -29,7 +29,6 @@ class _AddEditTaskScreenState
   bool get isEditing => widget.task != null;
 
   static const Color primaryBlue = Color(0xFF1727A0);
-  static const Color backgroundColor = Color(0xFFF5F6FA);
 
   @override
   void initState() {
@@ -132,15 +131,16 @@ class _AddEditTaskScreenState
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-
         title: Text(
           isEditing ? 'Edit Task' : 'New Task',
           style: const TextStyle(
@@ -159,11 +159,12 @@ class _AddEditTaskScreenState
             30,
           ),
           children: [
-            const Text(
+            Text(
               'Task Information',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
               ),
             ),
 
@@ -174,7 +175,7 @@ class _AddEditTaskScreenState
                   ? 'Update the details of your task.'
                   : 'Create a new task and stay organized.',
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 13,
               ),
             ),
@@ -182,7 +183,10 @@ class _AddEditTaskScreenState
             const SizedBox(height: 22),
 
             // TITLE
-            _sectionLabel('Task Title'),
+            _sectionLabel(
+              context,
+              'Task Title',
+            ),
 
             const SizedBox(height: 8),
 
@@ -190,6 +194,7 @@ class _AddEditTaskScreenState
               controller: _titleController,
               textInputAction: TextInputAction.next,
               decoration: _inputDecoration(
+                context: context,
                 hint: 'Enter task title',
                 icon: Icons.title,
               ),
@@ -206,7 +211,10 @@ class _AddEditTaskScreenState
             const SizedBox(height: 20),
 
             // DESCRIPTION
-            _sectionLabel('Description'),
+            _sectionLabel(
+              context,
+              'Description',
+            ),
 
             const SizedBox(height: 8),
 
@@ -214,6 +222,7 @@ class _AddEditTaskScreenState
               controller: _descriptionController,
               maxLines: 4,
               decoration: _inputDecoration(
+                context: context,
                 hint: 'Add a description...',
                 icon: Icons.notes_outlined,
               ),
@@ -222,13 +231,17 @@ class _AddEditTaskScreenState
             const SizedBox(height: 22),
 
             // PRIORITY
-            _sectionLabel('Priority'),
+            _sectionLabel(
+              context,
+              'Priority',
+            ),
 
             const SizedBox(height: 8),
 
             DropdownButtonFormField<TaskPriority>(
               initialValue: _priority,
               decoration: _inputDecoration(
+                context: context,
                 hint: 'Select priority',
                 icon: Icons.flag_outlined,
               ),
@@ -258,7 +271,10 @@ class _AddEditTaskScreenState
             const SizedBox(height: 22),
 
             // DATE AND TIME
-            _sectionLabel('Schedule'),
+            _sectionLabel(
+              context,
+              'Schedule',
+            ),
 
             const SizedBox(height: 8),
 
@@ -266,6 +282,7 @@ class _AddEditTaskScreenState
               children: [
                 Expanded(
                   child: _scheduleButton(
+                    context: context,
                     icon: Icons.calendar_today_outlined,
                     title: 'Due Date',
                     value: _dateText(),
@@ -277,6 +294,7 @@ class _AddEditTaskScreenState
 
                 Expanded(
                   child: _scheduleButton(
+                    context: context,
                     icon: Icons.access_time,
                     title: 'Due Time',
                     value: _dueTime == null
@@ -296,7 +314,6 @@ class _AddEditTaskScreenState
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _saveTask,
-
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryBlue,
                   foregroundColor: Colors.white,
@@ -305,13 +322,11 @@ class _AddEditTaskScreenState
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-
                 icon: Icon(
                   isEditing
                       ? Icons.save_outlined
                       : Icons.add_task,
                 ),
-
                 label: Text(
                   isEditing
                       ? 'Update Task'
@@ -329,20 +344,29 @@ class _AddEditTaskScreenState
     );
   }
 
-  Widget _sectionLabel(String text) {
+  Widget _sectionLabel(
+    BuildContext context,
+    String text,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.bold,
+        color: colorScheme.onSurface,
       ),
     );
   }
 
   InputDecoration _inputDecoration({
+    required BuildContext context,
     required String hint,
     required IconData icon,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InputDecoration(
       hintText: hint,
       prefixIcon: Icon(
@@ -351,7 +375,7 @@ class _AddEditTaskScreenState
         size: 20,
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: colorScheme.surface,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 14,
         vertical: 14,
@@ -359,13 +383,13 @@ class _AddEditTaskScreenState
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(
-          color: Colors.grey.shade200,
+          color: colorScheme.outlineVariant,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(
-          color: Colors.grey.shade200,
+          color: colorScheme.outlineVariant,
         ),
       ),
       focusedBorder: OutlineInputBorder(
@@ -379,21 +403,24 @@ class _AddEditTaskScreenState
   }
 
   Widget _scheduleButton({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String value,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.grey.shade200,
+            color: colorScheme.outlineVariant,
           ),
         ),
         child: Column(
@@ -411,7 +438,7 @@ class _AddEditTaskScreenState
                   title,
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.grey.shade600,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -422,9 +449,10 @@ class _AddEditTaskScreenState
             Text(
               value,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
               ),
             ),
           ],

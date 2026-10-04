@@ -4,6 +4,7 @@ import '../models/task.dart';
 import '../services/task_service.dart';
 import '../widgets/home_bottom_nav.dart';
 import 'add_edit_task_screen.dart';
+import 'reminders_screen.dart';
 import 'settings_screen.dart';
 import 'task_list_screen.dart';
 
@@ -11,7 +12,6 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   static const Color primaryBlue = Color(0xFF1727A0);
-  static const Color backgroundColor = Color(0xFFF5F6FA);
 
   String _greeting() {
     final hour = DateTime.now().hour;
@@ -47,7 +47,9 @@ class HomeScreen extends StatelessWidget {
   }
 
   bool _isToday(DateTime? date) {
-    if (date == null) return false;
+    if (date == null) {
+      return false;
+    }
 
     final now = DateTime.now();
 
@@ -59,9 +61,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final taskService = TaskService.instance;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
 
       // LEFT MENU
       drawer: Drawer(
@@ -136,39 +140,60 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
-
         title: const Text(
           'Time Matter',
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
-
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none),
-                onPressed: () {},
-              ),
+          AnimatedBuilder(
+            animation: taskService,
+            builder: (context, child) {
+              final hasReminders = taskService.tasks.any(
+                (task) =>
+                    task.dueDate != null ||
+                    task.dueTime != null,
+              );
 
-              Positioned(
-                right: 10,
-                top: 8,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.notifications_none,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const RemindersScreen(),
+                        ),
+                      );
+                    },
                   ),
-                ),
-              ),
-            ],
+
+                  if (hasReminders)
+                    Positioned(
+                      right: 10,
+                      top: 8,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
 
+      // BODY
       body: AnimatedBuilder(
         animation: taskService,
         builder: (context, child) {
@@ -211,9 +236,10 @@ class HomeScreen extends StatelessWidget {
                 // GREETING
                 Text(
                   '${_greeting()}, Arman!',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 23,
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                 ),
 
@@ -223,7 +249,7 @@ class HomeScreen extends StatelessWidget {
                   _todayDate(),
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey.shade600,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
 
@@ -238,7 +264,8 @@ class HomeScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment:
@@ -252,7 +279,6 @@ class HomeScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-
                           Text(
                             '${todayTasks.length} Tasks',
                             style: const TextStyle(
@@ -270,19 +296,24 @@ class HomeScreen extends StatelessWidget {
                           width: double.infinity,
                           padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
+                            color: colorScheme.surface,
+                            borderRadius:
+                                BorderRadius.circular(8),
                           ),
-                          child: const Text(
+                          child: Text(
                             'No tasks for today.',
                             style: TextStyle(
-                              color: Colors.grey,
+                              color:
+                                  colorScheme.onSurfaceVariant,
                             ),
                           ),
                         )
                       else
                         ...todayTasks.take(3).map(
-                          (task) => _todayTaskItem(task),
+                          (task) => _todayTaskItem(
+                            context,
+                            task,
+                          ),
                         ),
                     ],
                   ),
@@ -292,12 +323,14 @@ class HomeScreen extends StatelessWidget {
 
                 // UPCOMING DEADLINES
                 _sectionHeader(
+                  context,
                   'Upcoming Deadlines',
                   () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const TaskListScreen(),
+                        builder: (_) =>
+                            const TaskListScreen(),
                       ),
                     );
                   },
@@ -307,12 +340,16 @@ class HomeScreen extends StatelessWidget {
 
                 if (upcomingTasks.isEmpty)
                   _emptyCard(
+                    context,
                     Icons.calendar_today_outlined,
                     'No upcoming deadlines.',
                   )
                 else
                   ...upcomingTasks.take(3).map(
-                    (task) => _deadlineCard(task),
+                    (task) => _deadlineCard(
+                      context,
+                      task,
+                    ),
                   ),
 
                 const SizedBox(height: 18),
@@ -322,18 +359,19 @@ class HomeScreen extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     children: [
                       Row(
                         children: [
-                          const Text(
+                          Text(
                             "Today's Progress",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
                             ),
                           ),
 
@@ -362,20 +400,25 @@ class HomeScreen extends StatelessWidget {
                                 SizedBox(
                                   width: 60,
                                   height: 60,
-                                  child: CircularProgressIndicator(
+                                  child:
+                                      CircularProgressIndicator(
                                     value: todayProgress,
                                     strokeWidth: 7,
                                     backgroundColor:
-                                        Colors.grey.shade300,
+                                        colorScheme
+                                            .surfaceContainerHighest,
                                     color: primaryBlue,
                                   ),
                                 ),
 
                                 Text(
                                   '${(todayProgress * 100).round()}%',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight:
+                                        FontWeight.bold,
+                                    color:
+                                        colorScheme.onSurface,
                                   ),
                                 ),
                               ],
@@ -392,7 +435,8 @@ class HomeScreen extends StatelessWidget {
                                 Text(
                                   '$completedToday of ${todayTasks.length} tasks completed',
                                   style: TextStyle(
-                                    color: Colors.grey.shade700,
+                                    color: colorScheme
+                                        .onSurfaceVariant,
                                   ),
                                 ),
 
@@ -401,11 +445,13 @@ class HomeScreen extends StatelessWidget {
                                 ClipRRect(
                                   borderRadius:
                                       BorderRadius.circular(10),
-                                  child: LinearProgressIndicator(
+                                  child:
+                                      LinearProgressIndicator(
                                     value: todayProgress,
                                     minHeight: 8,
                                     backgroundColor:
-                                        Colors.grey.shade300,
+                                        colorScheme
+                                            .surfaceContainerHighest,
                                     color: primaryBlue,
                                   ),
                                 ),
@@ -438,7 +484,8 @@ class HomeScreen extends StatelessWidget {
                       backgroundColor: primaryBlue,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius:
+                            BorderRadius.circular(10),
                       ),
                     ),
                     icon: const Icon(Icons.add),
@@ -490,7 +537,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _todayTaskItem(Task task) {
+  Widget _todayTaskItem(
+    BuildContext context,
+    Task task,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.symmetric(
@@ -498,7 +550,7 @@ class HomeScreen extends StatelessWidget {
         vertical: 7,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(7),
       ),
       child: Row(
@@ -509,7 +561,7 @@ class HomeScreen extends StatelessWidget {
                 : Icons.check_box_outline_blank,
             color: task.isCompleted
                 ? primaryBlue
-                : Colors.grey,
+                : colorScheme.onSurfaceVariant,
             size: 22,
           ),
 
@@ -522,6 +574,7 @@ class HomeScreen extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
+                color: colorScheme.onSurface,
                 decoration: task.isCompleted
                     ? TextDecoration.lineThrough
                     : null,
@@ -553,6 +606,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _sectionHeader(
+    BuildContext context,
     String title,
     VoidCallback onViewAll,
   ) {
@@ -560,9 +614,12 @@ class HomeScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.bold,
+            color: Theme.of(context)
+                .colorScheme
+                .onSurface,
           ),
         ),
 
@@ -583,21 +640,24 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _emptyCard(
+    BuildContext context,
     IconData icon,
     String text,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           Icon(
             icon,
-            color: Colors.grey.shade500,
+            color: colorScheme.onSurfaceVariant,
           ),
 
           const SizedBox(width: 12),
@@ -605,7 +665,7 @@ class HomeScreen extends StatelessWidget {
           Text(
             text,
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -613,12 +673,17 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _deadlineCard(Task task) {
+  Widget _deadlineCard(
+    BuildContext context,
+    Task task,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -626,7 +691,7 @@ class HomeScreen extends StatelessWidget {
           Icon(
             Icons.calendar_today_outlined,
             size: 22,
-            color: Colors.grey.shade600,
+            color: colorScheme.onSurfaceVariant,
           ),
 
           const SizedBox(width: 12),
@@ -638,9 +703,10 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   task.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
+                    color: colorScheme.onSurface,
                   ),
                 ),
 
@@ -650,7 +716,7 @@ class HomeScreen extends StatelessWidget {
                   '${task.dueDate!.month}/${task.dueDate!.day}/${task.dueDate!.year}',
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.grey.shade600,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -666,11 +732,12 @@ class HomeScreen extends StatelessWidget {
               color: Colors.orange.shade100,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
+            child: Text(
               'Upcoming',
               style: TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
+                color: Colors.orange.shade900,
               ),
             ),
           ),

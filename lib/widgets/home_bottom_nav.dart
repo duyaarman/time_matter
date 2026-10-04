@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class HomeBottomNav extends StatelessWidget {
@@ -17,13 +16,16 @@ class HomeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return BottomAppBar(
       height: 65,
-      color: Colors.white,
+      color: colorScheme.surface,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _navItem(
+            context: context,
             icon: Icons.home,
             label: 'Home',
             selected: true,
@@ -31,6 +33,7 @@ class HomeBottomNav extends StatelessWidget {
           ),
 
           _navItem(
+            context: context,
             icon: Icons.checklist,
             label: 'Tasks',
             selected: false,
@@ -55,6 +58,7 @@ class HomeBottomNav extends StatelessWidget {
           ),
 
           _navItem(
+            context: context,
             icon: Icons.settings_outlined,
             label: 'Settings',
             selected: false,
@@ -66,11 +70,14 @@ class HomeBottomNav extends StatelessWidget {
   }
 
   Widget _navItem({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required bool selected,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
@@ -84,16 +91,18 @@ class HomeBottomNav extends StatelessWidget {
               size: 23,
               color: selected
                   ? const Color(0xFF1727A0)
-                  : Colors.grey.shade600,
+                  : colorScheme.onSurfaceVariant,
             ),
+
             const SizedBox(height: 2),
+
             Text(
               label,
               style: TextStyle(
                 fontSize: 9,
                 color: selected
                     ? const Color(0xFF1727A0)
-                    : Colors.grey.shade600,
+                    : colorScheme.onSurfaceVariant,
                 fontWeight: selected
                     ? FontWeight.bold
                     : FontWeight.normal,
@@ -105,4 +114,3 @@ class HomeBottomNav extends StatelessWidget {
     );
   }
 }
-

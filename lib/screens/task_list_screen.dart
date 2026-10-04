@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../services/task_service.dart';
 import '../widgets/task_card.dart';
 import 'add_edit_task_screen.dart';
@@ -16,28 +17,26 @@ class _TaskListScreenState extends State<TaskListScreen> {
   String searchQuery = '';
 
   static const Color primaryBlue = Color(0xFF1727A0);
-  static const Color backgroundColor = Color(0xFFF5F6FA);
 
   @override
   Widget build(BuildContext context) {
     final taskService = TaskService.instance;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-
         title: const Text(
           'My Tasks',
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
-
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -84,10 +83,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
             children: [
               // TABS
               Container(
-                color: Colors.white,
+                color: colorScheme.surface,
                 child: Row(
                   children: [
                     _tabButton(
+                      context: context,
                       title: 'Active (${activeTasks.length})',
                       selected: selectedTab == 0,
                       onTap: () {
@@ -97,6 +97,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       },
                     ),
                     _tabButton(
+                      context: context,
                       title: 'Completed (${completedTasks.length})',
                       selected: selectedTab == 1,
                       onTap: () {
@@ -112,7 +113,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
               // TASK LIST
               Expanded(
                 child: tasks.isEmpty
-                    ? _emptyState()
+                    ? _emptyState(context)
                     : ListView(
                         padding: const EdgeInsets.fromLTRB(
                           16,
@@ -125,9 +126,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
                             selectedTab == 0
                                 ? 'Active Tasks'
                                 : 'Completed Tasks',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
                             ),
                           ),
 
@@ -139,7 +141,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                   const EdgeInsets.only(bottom: 10),
                               child: TaskCard(
                                 task: task,
-
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -151,11 +152,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                     ),
                                   );
                                 },
-
                                 onToggle: () {
                                   taskService.toggleTask(task);
                                 },
-
                                 onDelete: () {
                                   taskService.deleteTask(task);
                                 },
@@ -172,7 +171,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
       // ADD BUTTON
       bottomSheet: Container(
-        color: backgroundColor,
+        color: Theme.of(context).scaffoldBackgroundColor,
         padding: const EdgeInsets.fromLTRB(
           16,
           8,
@@ -191,7 +190,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 ),
               );
             },
-
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryBlue,
               foregroundColor: Colors.white,
@@ -199,9 +197,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-
             icon: const Icon(Icons.add),
-
             label: const Text(
               'Add New Task',
               style: TextStyle(
@@ -215,10 +211,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
   }
 
   Widget _tabButton({
+    required BuildContext context,
     required String title,
     required bool selected,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -242,7 +241,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
             style: TextStyle(
               color: selected
                   ? primaryBlue
-                  : Colors.grey.shade700,
+                  : colorScheme.onSurfaceVariant,
               fontWeight: selected
                   ? FontWeight.bold
                   : FontWeight.normal,
@@ -254,7 +253,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
     );
   }
 
-  Widget _emptyState() {
+  Widget _emptyState(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -264,7 +265,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 ? Icons.task_alt
                 : Icons.check_circle_outline,
             size: 65,
-            color: Colors.grey.shade400,
+            color: colorScheme.onSurfaceVariant,
           ),
 
           const SizedBox(height: 15),
@@ -273,9 +274,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
             selectedTab == 0
                 ? 'No active tasks.'
                 : 'No completed tasks.',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 19,
               fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
             ),
           ),
 
@@ -286,7 +288,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 ? 'Tap + to create your first task.'
                 : 'Completed tasks will appear here.',
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],

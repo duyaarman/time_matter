@@ -58,8 +58,10 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         title: const Text('Task Details'),
@@ -83,9 +85,10 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                 children: [
                   Text(
                     task.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
                     ),
                   ),
 
@@ -122,11 +125,12 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Description',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
                     ),
                   ),
 
@@ -139,8 +143,8 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                     style: TextStyle(
                       fontSize: 15,
                       color: task.description.isEmpty
-                          ? Colors.grey
-                          : Colors.black87,
+                          ? colorScheme.onSurfaceVariant
+                          : colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -178,7 +182,9 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
           // Reminder settings
           Card(
             child: SwitchListTile(
-              secondary: const Icon(Icons.notifications_outlined),
+              secondary: const Icon(
+                Icons.notifications_outlined,
+              ),
               title: const Text(
                 'Reminder Settings',
                 style: TextStyle(

@@ -61,6 +61,7 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final completed = task.isCompleted;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Material(
       color: Colors.transparent,
@@ -71,14 +72,18 @@ class TaskCard extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: Colors.grey.shade200,
+              color: colorScheme.outlineVariant,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Colors.black.withValues(
+                  alpha: Theme.of(context).brightness == Brightness.dark
+                      ? 0.15
+                      : 0.04,
+                ),
                 blurRadius: 8,
                 offset: const Offset(0, 3),
               ),
@@ -101,7 +106,7 @@ class TaskCard extends StatelessWidget {
                     border: Border.all(
                       color: completed
                           ? primaryBlue
-                          : Colors.grey.shade400,
+                          : colorScheme.outline,
                       width: 1.5,
                     ),
                     borderRadius: BorderRadius.circular(6),
@@ -121,8 +126,7 @@ class TaskCard extends StatelessWidget {
               // TASK INFORMATION
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       task.title,
@@ -135,8 +139,8 @@ class TaskCard extends StatelessWidget {
                             ? TextDecoration.lineThrough
                             : null,
                         color: completed
-                            ? Colors.grey.shade500
-                            : Colors.black87,
+                            ? colorScheme.onSurfaceVariant
+                            : colorScheme.onSurface,
                       ),
                     ),
 
@@ -148,7 +152,7 @@ class TaskCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -184,12 +188,14 @@ class TaskCard extends StatelessWidget {
 
                         if (task.dueDate != null)
                           _infoTag(
+                            context,
                             Icons.calendar_today_outlined,
                             _formatDate(task.dueDate!),
                           ),
 
                         if (task.dueTime != null)
                           _infoTag(
+                            context,
                             Icons.access_time,
                             task.dueTime!,
                           ),
@@ -208,7 +214,7 @@ class TaskCard extends StatelessWidget {
                   Icons.delete_outline,
                   size: 21,
                 ),
-                color: Colors.grey.shade500,
+                color: colorScheme.onSurfaceVariant,
                 tooltip: 'Delete task',
               ),
             ],
@@ -219,16 +225,19 @@ class TaskCard extends StatelessWidget {
   }
 
   Widget _infoTag(
+    BuildContext context,
     IconData icon,
     String text,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 7,
         vertical: 4,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -237,14 +246,14 @@ class TaskCard extends StatelessWidget {
           Icon(
             icon,
             size: 11,
-            color: Colors.grey.shade600,
+            color: colorScheme.onSurfaceVariant,
           ),
           const SizedBox(width: 4),
           Text(
             text,
             style: TextStyle(
               fontSize: 10,
-              color: Colors.grey.shade600,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
