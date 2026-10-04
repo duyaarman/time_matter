@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
 
-void main() {
+import 'screens/home_screen.dart';
+import 'services/task_service.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await TaskService.instance.loadTasks();
+
   runApp(const TimeMatterApp());
 }
 
