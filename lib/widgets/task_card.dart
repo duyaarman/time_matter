@@ -39,6 +39,51 @@ class TaskCard extends StatelessWidget {
     }
   }
 
+  bool get isLate {
+    if (task.isCompleted || task.dueDate == null) {
+      return false;
+    }
+
+    final dueDate = task.dueDate!;
+
+    DateTime deadline;
+
+    if (task.dueTime != null && task.dueTime!.isNotEmpty) {
+      final parts = task.dueTime!.split(':');
+
+      if (parts.length >= 2) {
+        final hour = int.tryParse(parts[0]) ?? 0;
+        final minute = int.tryParse(parts[1]) ?? 0;
+
+        deadline = DateTime(
+          dueDate.year,
+          dueDate.month,
+          dueDate.day,
+          hour,
+          minute,
+        );
+      } else {
+        deadline = DateTime(
+          dueDate.year,
+          dueDate.month,
+          dueDate.day,
+          23,
+          59,
+        );
+      }
+    } else {
+      deadline = DateTime(
+        dueDate.year,
+        dueDate.month,
+        dueDate.day,
+        23,
+        59,
+      );
+    }
+
+    return DateTime.now().isAfter(deadline);
+  }
+
   String _formatDate(DateTime date) {
     const months = [
       'Jan',
@@ -61,6 +106,7 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final completed = task.isCompleted;
+    final late = isLate;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Material(
@@ -75,7 +121,9 @@ class TaskCard extends StatelessWidget {
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: colorScheme.outlineVariant,
+              color: late
+                  ? Colors.red.withValues(alpha: 0.45)
+                  : colorScheme.outlineVariant,
             ),
             boxShadow: [
               BoxShadow(
@@ -173,8 +221,7 @@ class TaskCard extends StatelessWidget {
                             color: priorityColor.withValues(
                               alpha: 0.12,
                             ),
-                            borderRadius:
-                                BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             priorityText,
@@ -185,6 +232,29 @@ class TaskCard extends StatelessWidget {
                             ),
                           ),
                         ),
+
+                        // MISSING / LATE
+                        if (late)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withValues(
+                                alpha: 0.12,
+                              ),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'Missing',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
 
                         if (task.dueDate != null)
                           _infoTag(

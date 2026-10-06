@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/reminder_service.dart';
 import '../services/theme_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -10,13 +11,20 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool reminders = false;
+  static const Color primaryBlue = Color(0xFF1727A0);
+
+  @override
+  void initState() {
+    super.initState();
+
+    ReminderService.instance.loadReminderSetting();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1727A0),
+        backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
         centerTitle: true,
         title: const Text(
@@ -26,6 +34,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
+
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -39,15 +48,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 8),
 
+          // DARK MODE
           Card(
             child: ListTile(
               leading: const Icon(Icons.dark_mode),
               title: const Text('Dark Mode'),
-              subtitle: const Text('Change app appearance'),
-              trailing: Switch(
-                value: ThemeService.instance.isDarkMode,
-                onChanged: (value) {
-                  ThemeService.instance.toggleDarkMode(value);
+              subtitle: const Text(
+                'Change app appearance',
+              ),
+              trailing: AnimatedBuilder(
+                animation: ThemeService.instance,
+                builder: (context, child) {
+                  return Switch(
+                    value: ThemeService.instance.isDarkMode,
+                    onChanged: (value) {
+                      ThemeService.instance.toggleDarkMode(
+                        value,
+                      );
+                    },
+                  );
                 },
               ),
             ),
@@ -65,17 +84,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 8),
 
+          // REMINDERS
           Card(
             child: ListTile(
-              leading: const Icon(Icons.notifications),
-              title: const Text('Enable Reminder'),
-              subtitle: const Text('Task reminders'),
-              trailing: Switch(
-                value: reminders,
-                onChanged: (value) {
-                  setState(() {
-                    reminders = value;
-                  });
+              leading: const Icon(
+                Icons.notifications,
+              ),
+              title: const Text(
+                'Enable Reminder',
+              ),
+              subtitle: const Text(
+                'Show task reminders',
+              ),
+              trailing: AnimatedBuilder(
+                animation: ReminderService.instance,
+                builder: (context, child) {
+                  return Switch(
+                    value: ReminderService
+                        .instance
+                        .isEnabled,
+                    onChanged: (value) {
+                      ReminderService.instance
+                          .setEnabled(value);
+                    },
+                  );
                 },
               ),
             ),
@@ -93,12 +125,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 8),
 
+          // ABOUT
           Card(
             child: ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('About Time Matter'),
-              subtitle: const Text('Version 1.0'),
-              trailing: const Icon(Icons.chevron_right),
+              leading: const Icon(
+                Icons.info_outline,
+              ),
+              title: const Text(
+                'About Time Matter',
+              ),
+              subtitle: const Text(
+                'Version 1.0',
+              ),
+              trailing: const Icon(
+                Icons.chevron_right,
+              ),
               onTap: () {
                 showAboutDialog(
                   context: context,
@@ -106,7 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   applicationVersion: '1.0',
                   applicationIcon: const Icon(
                     Icons.access_time,
-                    color: Color(0xFF1727A0),
+                    color: primaryBlue,
                     size: 40,
                   ),
                   children: const [
@@ -121,6 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 16),
 
+          // APP INFORMATION
           Card(
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -129,23 +171,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const Icon(
                     Icons.access_time,
                     size: 65,
-                    color: Color(0xFF1727A0),
+                    color: primaryBlue,
                   ),
+
                   const SizedBox(height: 8),
+
                   const Text(
                     'Time Matter',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1727A0),
+                      color: primaryBlue,
                     ),
                   ),
+
                   const SizedBox(height: 4),
+
                   Text(
                     'Version 1.0',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.grey,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant,
                     ),
                   ),
                 ],

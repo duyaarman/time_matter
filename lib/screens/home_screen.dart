@@ -1,17 +1,96 @@
 import 'package:flutter/material.dart';
 
 import '../models/task.dart';
+import '../services/reminder_service.dart';
 import '../services/task_service.dart';
+import '../services/user_name_service.dart';
 import '../widgets/home_bottom_nav.dart';
 import 'add_edit_task_screen.dart';
 import 'reminders_screen.dart';
 import 'settings_screen.dart';
 import 'task_list_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   static const Color primaryBlue = Color(0xFF1727A0);
+
+  String _userName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final savedName = await UserNameService.getName();
+
+    if (savedName == null || savedName.trim().isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showNameDialog();
+      });
+    } else if (mounted) {
+      setState(() {
+        _userName = savedName;
+      });
+    }
+  }
+
+  Future<void> _showNameDialog() async {
+    final controller = TextEditingController();
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Welcome to Time Matter!'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(
+              labelText: 'Your name',
+              hintText: 'Enter your name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                final name = controller.text.trim();
+
+                if (name.isEmpty) {
+                  return;
+                }
+
+                await UserNameService.saveName(name);
+
+                if (mounted) {
+                  setState(() {
+                    _userName = name;
+                  });
+                }
+
+                if (dialogContext.mounted) {
+                  Navigator.pop(dialogContext);
+                }
+              },
+              child: const Text('Continue'),
+            ),
+          ],
+        );
+      },
+    );
+
+    controller.dispose();
+  }
 
   String _greeting() {
     final hour = DateTime.now().hour;
@@ -148,13 +227,18 @@ class HomeScreen extends StatelessWidget {
         ),
         actions: [
           AnimatedBuilder(
-            animation: taskService,
+            animation: Listenable.merge([
+              taskService,
+              ReminderService.instance,
+            ]),
             builder: (context, child) {
-              final hasReminders = taskService.tasks.any(
-                (task) =>
-                    task.dueDate != null ||
-                    task.dueTime != null,
-              );
+              final hasReminders =
+                  ReminderService.instance.isEnabled &&
+                  taskService.tasks.any(
+                    (task) =>
+                        task.dueDate != null ||
+                        task.dueTime != null,
+                  );
 
               return Stack(
                 children: [
@@ -166,8 +250,7 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              const RemindersScreen(),
+                          builder: (_) => const RemindersScreen(),
                         ),
                       );
                     },
@@ -235,7 +318,9 @@ class HomeScreen extends StatelessWidget {
               children: [
                 // GREETING
                 Text(
-                  '${_greeting()}, Arman!',
+                  _userName.isEmpty
+                      ? '${_greeting()}!'
+                      : '${_greeting()}, $_userName!',
                   style: TextStyle(
                     fontSize: 23,
                     fontWeight: FontWeight.bold,
