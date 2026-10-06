@@ -13,14 +13,23 @@ A task-management mobile application built with Flutter.
 - Set task priority
 - Set due dates
 - Set due times
+- Search tasks
 - View detailed task information
 - Track today's task progress
+- View task reminders
+- Enable Dark Mode
+- Set a personalized user name
+- Save tasks locally
 - Mobile bottom navigation
 
 ## Technology Used
 
 - Flutter
 - Dart
+- Material 3
+- SharedPreferences
+- Git
+- GitHub
 
 ## Project Structure
 
@@ -30,41 +39,56 @@ lib/
 │   └── task.dart
 │
 ├── services/
-│   └── task_service.dart
+│   ├── task_service.dart
+│   ├── reminder_service.dart
+│   ├── theme_service.dart
+│   └── user_name_service.dart
 │
 ├── screens/
 │   ├── home_screen.dart
 │   ├── task_list_screen.dart
 │   ├── add_edit_task_screen.dart
-│   └── task_details_screen.dart
+│   ├── task_details_screen.dart
+│   ├── reminders_screen.dart
+│   └── settings_screen.dart
 │
 └── widgets/
     ├── task_card.dart
     └── home_bottom_nav.dart
-
 ```
+
 Main Screens
 Home Screen
 
-Displays today's task progress and provides access to the user's tasks.
+Displays today's tasks, upcoming deadlines, task progress, and navigation to other parts of the app.
 
 Task List Screen
 
-Displays the user's tasks and allows users to complete, delete, or open a task.
+Displays active and completed tasks and allows users to search, complete, delete, or open a task.
 
 Add/Edit Task Screen
 
-Allows users to create and edit tasks.
+Allows users to create and edit tasks with descriptions, priorities, due dates, and due times.
 
 Task Details Screen
 
 Displays the complete information of a selected task.
 
+Reminders Screen
+
+Displays tasks that have scheduled due dates or due times.
+
+Settings Screen
+
+Allows users to enable Dark Mode and task reminders and view information about the application.
+
+Data Persistence
+
+TimeMatter uses SharedPreferences to save task data, user settings, Dark Mode preferences, reminder settings, and the personalized user name locally.
+
 Current Status
 
-The main task-management features are implemented, including creating, editing, completing, and deleting tasks.
-
-The Settings screen is still under development, and additional UI improvements and testing are planned.
+The main task-management features are implemented and working, including creating, editing, completing, deleting, searching, reminders, Dark Mode, and local data persistence.
 
 AI Assistance
 
