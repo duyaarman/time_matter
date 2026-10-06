@@ -90,14 +90,14 @@ Current Status
 
 The main task-management features are implemented and working, including creating, editing, completing, deleting, searching, reminders, Dark Mode, and local data persistence.
 
-AI Assistance
+## AI Assistance
 
 I used ChatGPT and Claude as AI development assistants for selected parts of the TimeMatter application, including code generation, implementation ideas, and troubleshooting.
 
 I reviewed and modified the AI-generated code when it did not match my preferred project structure or UI design.
 
-See AI-USAGE.md for the complete AI usage documentation.
+See [AI-USAGE.md](AI-USAGE.md) for the complete AI usage documentation.
 
-Flutter Resources
+## Flutter Resources
 
-For more information about Flutter, visit the Flutter documentation.
+For more information about Flutter, visit the [Flutter documentation](https://docs.flutter.dev/).
