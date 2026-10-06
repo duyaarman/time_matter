@@ -57,36 +57,36 @@ lib/
     └── home_bottom_nav.dart
 ```
 
-Main Screens
-Home Screen
+##Main Screens
+#Home Screen
 
 Displays today's tasks, upcoming deadlines, task progress, and navigation to other parts of the app.
 
-Task List Screen
+#Task List Screen
 
 Displays active and completed tasks and allows users to search, complete, delete, or open a task.
 
-Add/Edit Task Screen
+#Add/Edit Task Screen
 
 Allows users to create and edit tasks with descriptions, priorities, due dates, and due times.
 
-Task Details Screen
+#Task Details Screen
 
 Displays the complete information of a selected task.
 
-Reminders Screen
+#Reminders Screen
 
 Displays tasks that have scheduled due dates or due times.
 
-Settings Screen
+#Settings Screen
 
 Allows users to enable Dark Mode and task reminders and view information about the application.
 
-Data Persistence
+#Data Persistence
 
 TimeMatter uses SharedPreferences to save task data, user settings, Dark Mode preferences, reminder settings, and the personalized user name locally.
 
-Current Status
+#Current Status
 
 The main task-management features are implemented and working, including creating, editing, completing, deleting, searching, reminders, Dark Mode, and local data persistence.
 
